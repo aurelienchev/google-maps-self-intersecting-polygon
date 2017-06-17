@@ -1,180 +1,110 @@
 <!doctype html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Poly Splitting | Demo page for Google Maps JavaScript API v3 polysplitting library</title>
-    <meta name="description" content="Demo for splitting google maps polygons">
-    <meta name="author" content="Trent Mentink">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    
-    <!-- some basic styles for the demo -->
-    <style type="text/css">
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        height: 100%;
-      }
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Poly Intersecting | Demo page for Google Maps JavaScript API v3 polyintersect library</title>
+        <meta name="description" content="Demo for validate self-intersecting google maps polygons">
+        <meta name="author" content="techievickyr">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-      #map {
-        height: 100%;
-        width: 100%;
-      }
+        <!-- some basic styles for the demo -->
+        <style type="text/css">
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                height: 100%;
+            }
 
-      #controls { 
-        position: fixed; 
-        top: 10px; 
-        right: 10px; 
-        z-index: 1000;
-      }
-
-      .button {
-        background-color: #fff;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        box-shadow: rgba(0,0,0,1) 0 1px 4px 0;
-        color: #333;
-        cursor: pointer;
-        font-size: 20px;
-        margin: 2.5px 0;
-        min-width: 150px;
-        padding: 8px;       
-        text-align: center;       
-      }
-
-      .button:hover {       
-        background-color: #ebebeb;
-        box-shadow: inset 0 0 2px 2px rgba(0,0,0,.1), rgba(0,0,0,1) 0 1px 4px 0;
-        color: #000;
-      }
-
-      .hidden {
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-
-    <div id="map"></div>
-
-    <div id="controls">
-      <div id="btnSelection" class="button">Begin Selection</div>
-      <div id="btnSplit" class="button hidden">Split Polygons</div>
-      <div id="btnClear" class="button hidden">Clear All</div>
-    </div>
-
-
-    <!-- Google Maps API * including geometry library -->
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry"></script>
-   
-    <!-- Poly-Splitting Library -->
-    <script type="text/javascript" src="js/polysplitting.min.js"></script>
-   
-    <!-- Demo JavaScript -->
-    <script type="text/javascript">
-      var map;
-      var coords = [{lat: 51.432674878507314, lng: -1.8486213684082031},{lat: 51.433390565845485, lng: -1.8473660945892334},{lat: 51.43307619989089, lng: -1.8458962440490723},{lat: 51.432066201014194, lng: -1.8454670906066895},{lat: 51.43133711510069, lng: -1.846604347229004},{lat: 51.43163811528248, lng: -1.8482029438018799}]
-      var demoPoly;
-      var selectionPoly;
-      var outerPoly;
-      var innerPoly;
-      
-      function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 51.4323, lng: -1.8470 },
-            zoom: 17,
-            mapTypeId: google.maps.MapTypeId.SATELLITE
-        });
-
-        demoPoly = new google.maps.Polygon({
-          paths: coords,
-          strokeColor: "#0000FF",
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: "#0000FF",
-          fillOpacity: 0.25,
-          zIndex: 0
-        });
-        demoPoly.setMap(map);
-      } // <-- initMap()
-   
-      initMap();
-
-      // get references to the buttons
-      var btnSelection = document.getElementById('btnSelection');     
-      var btnSplit = document.getElementById('btnSplit');
-      var btnClear = document.getElementById('btnClear');
-      
-      btnSelection.onclick=function(){
-        // toggle the buttons
-        btnSelection.className = "button hidden";
-        btnSplit.className = "button";
-        btnClear.className = "button";
+            #map {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
         
-        // create selection box polygon and store it in variable
-        selectionPoly = demoPoly.initSelection('validate');
-      };
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-      btnSplit.onclick=function(){
-        // get an array containing the result of the split
-        // index: 0 = outer polygon
-        // index: 1 = inner polygon
-        // returns null if the split fails 
-        var splitPolys = demoPoly.split(selectionPoly);
-       
-        // clear any previous splits
-        if (outerPoly != null) {
-          outerPoly.setMap(null);
-          innerPoly.setMap(null);
-        }
+        <!-- Google Maps API * including geometry library -->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry"></script>
 
-        if (splitPolys != null) {
-          outerPoly = new google.maps.Polygon({
-            paths: splitPolys[0],
-            strokeColor: "#0000FF",
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: "#0000FF",
-            fillOpacity: 0.25,
-            zIndex: 2
-          });
-          outerPoly.setMap(map);
+        <!-- Poly-Splitting Library -->
+        <script type="text/javascript" src="js/polyintersect.min.js"></script>
 
-          innerPoly = new google.maps.Polygon({
-            paths: splitPolys[1],
-            strokeColor: "#FF0000",
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: "#FF0000",
-            fillOpacity: 0.5,
-            zIndex: 2
-          });
-          innerPoly.setMap(map);
-        }           
-      };
+        <!-- Demo JavaScript -->
+        <script type="text/javascript">
+            var map, poly, coords = [{lat: 45, lng: -100}, {lat: 45.5, lng: -99.5}, {lat: 46, lng: -100}, {lat: 46, lng: -101}, {lat: 45, lng: -101}]
 
-      btnClear.onclick=function(){
-        // toggle the buttons
-        btnSelection.className = "button";
-        btnSplit.className = "button hidden";
-        btnClear.className = "button hidden";
-        
-        // clear the selection poly
-        if (selectionPoly != null) {
-          selectionPoly.setMap(null);
-        }
+            var initialize = function () {
+				
+				function getDeleteButton() {
+					return  $("img[src$='img/remove.png']");
+				}
+				
+				function validateUpdated(index) {
+					
+					var path = this, btnDelete = getDeleteButton();
+					if (!(poly.validate(index))) {
+						
+						if(btnDelete.length === 0) 
+						{
+							var undoimg = $("img[src$='https://maps.gstatic.com/mapfiles/undo_poly.png']");
+							undoimg.parent().css('height', '21px !important');
+							undoimg.parent().parent().append('<div style="overflow: hidden; position: absolute; width: 30px; height: 27px;top:21px;"><img src="img/remove.png" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/></div>');
+							
+							// now get that button back again!
+							btnDelete = getDeleteButton();
+							btnDelete.hover(function() { $(this).css('left', '-30px'); return false;}, 
+											function() { $(this).css('left', '0px'); return false;});
+							btnDelete.mousedown(function() { $(this).css('left', '-60px'); return false;});
+						}
+						
+						// if we've already attached a handler, remove it
+						if(path.btnDeleteClickHandler) 
+							btnDelete.unbind('click', path.btnDeleteClickHandler);
 
-        // clear the split polygons
-        if (outerPoly != null) {
-          outerPoly.setMap(null);
-          innerPoly.setMap(null);
-        }
-      };
-      
-    </script>
-  </body>
+						// now add a handler for removing the passed in index
+						path.btnDeleteClickHandler = function() {
+							path.removeAt(index); 
+							return false;
+						};
+						
+						btnDelete.click(path.btnDeleteClickHandler);
+					}else {
+						// if we've already attached a handler, remove it
+						if(btnDelete.length !== 0 && path.btnDeleteClickHandler) 
+						{
+							btnDelete.unbind('click', path.btnDeleteClickHandler);
+							btnDelete.remove();							
+						}
+					}
+				}
+
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: {lat: 45.5, lng: -100.5},
+                    zoom: 8,
+                });
+
+                poly = new google.maps.Polygon({
+                    paths: coords,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#0000FF",
+                    fillOpacity: 0.25,
+                    zIndex: 0,
+                    map: map
+                });
+                poly.setEditable(true);
+                
+                google.maps.event.addListener(poly.getPath(), 'set_at', validateUpdated);
+				google.maps.event.addListener(poly.getPath(), 'insert_at', validateUpdated);
+            };
+        </script>
+    </head>
+    <body onload="initialize()">
+        <div id="map"></div>
+    </body>
 </html>
